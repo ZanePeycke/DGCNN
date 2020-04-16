@@ -1,10 +1,10 @@
 from __future__ import print_function
 
-import os
 import sys
 import numpy as np
 import torch
 import random
+import os
 from torch.autograd import Variable
 from torch.nn.parameter import Parameter
 import torch.nn as nn

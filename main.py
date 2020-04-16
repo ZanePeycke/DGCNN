@@ -31,7 +31,7 @@ class Classifier(nn.Module):
                             output_dim=cmd_args.out_dim,
                             num_node_feats=cmd_args.feat_dim+cmd_args.attr_dim,
                             num_edge_feats=cmd_args.edge_feat_dim,
-                            k=cmd_args.sortpooling_k, 
+                            k=cmd_args.sortpooling_k,
                             conv1d_activation=cmd_args.conv1d_activation)
         out_dim = cmd_args.out_dim
         if out_dim == 0:
@@ -98,7 +98,7 @@ class Classifier(nn.Module):
             pass
         else:
             node_feat = torch.ones(n_nodes, 1)  # use all-one vector as node features
-        
+
         if edge_feat_flag == True:
             edge_feat = torch.cat(concat_edge_feat, 0)
 
@@ -131,7 +131,7 @@ class Classifier(nn.Module):
             node_feat, edge_feat, labels = feature_label
         embed = self.gnn(batch_graph, node_feat, edge_feat)
         return embed, labels
-        
+
 
 def loop_dataset(g_list, classifier, sample_idxes, optimizer=None, bsize=cmd_args.batch_size):
     total_loss = []
@@ -174,15 +174,15 @@ def loop_dataset(g_list, classifier, sample_idxes, optimizer=None, bsize=cmd_arg
     total_loss = np.array(total_loss)
     avg_loss = np.sum(total_loss, 0) / n_samples
     all_scores = torch.cat(all_scores).cpu().numpy()
-    
+
     np.savetxt('test_scores.txt', all_scores)  # output test predictions
-    
+
     if not classifier.regression:
         all_targets = np.array(all_targets)
         fpr, tpr, _ = metrics.roc_curve(all_targets, all_scores, pos_label=1)
         auc = metrics.auc(fpr, tpr)
         avg_loss = np.concatenate((avg_loss, [auc]))
-    
+
     return avg_loss
 
 
@@ -222,7 +222,8 @@ if __name__ == '__main__':
         if not cmd_args.printAUC:
             test_loss[2] = 0.0
         print('\033[93maverage test of epoch %d: loss %.5f acc %.5f auc %.5f\033[0m' % (epoch, test_loss[0], test_loss[1], test_loss[2]))
-        
+        # For now, disregard saving models, we can resume once param selection is done
+        # See sheet for param records
 #        if best_loss is None or test_loss[0] < best_loss:
 #            best_loss = test_loss[0]
 #            print('----saving to best model since this is the best valid loss so far.----')

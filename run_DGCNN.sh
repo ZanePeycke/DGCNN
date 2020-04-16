@@ -3,7 +3,7 @@
 # input arguments
 DATA="${1-MUTAG}"  # MUTAG, ENZYMES, NCI1, NCI109, DD, PTC, PROTEINS, COLLAB, IMDBBINARY, IMDBMULTI
 fold=${2-1}  # which fold as testing data
-test_number=${3-20}  # if specified, use the last test_number graphs as test data
+test_number=${3-700}  # if specified, use the last test_number graphs as test data
 
 # general settings
 gm=DGCNN  # model
@@ -22,51 +22,16 @@ DFDC)
   num_epochs=30
   learning_rate=0.0001
   ;;
+DFDC_sample)
+  num_epochs=30
+  learning_rate=.0001
+  ;;
 MUTAG)
   num_epochs=30
   learning_rate=0.0001
   ;;
-ENZYMES)
-  num_epochs=500
-  learning_rate=0.0001
-  ;;
-NCI1)
-  num_epochs=200
-  learning_rate=0.0001
-  ;;
-NCI109)
-  num_epochs=200
-  learning_rate=0.0001
-  ;;
-DD)
-  num_epochs=200
-  learning_rate=0.00001
-  ;;
-PTC)
-  num_epochs=200
-  learning_rate=0.0001
-  ;;
-PROTEINS)
-  num_epochs=100
-  learning_rate=0.00001
-  ;;
-COLLAB)
-  num_epochs=300
-  learning_rate=0.0001
-  sortpooling_k=0.9
-  ;;
-IMDBBINARY)
-  num_epochs=300
-  learning_rate=0.0001
-  sortpooling_k=0.9
-  ;;
-IMDBMULTI)
-  num_epochs=500
-  learning_rate=0.0001
-  sortpooling_k=0.9
-  ;;
 *)
-  num_epochs=500
+  num_epochs=50
   learning_rate=0.00001
   ;;
 esac
