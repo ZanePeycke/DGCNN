@@ -1,8 +1,8 @@
 ### DFDC Data notes:
 
-Facial graph representations of 3467 frames extracted from 1158 Original videos, and 2309 manipulated videos.
+Single frame graph representations of 3467 faces extracted from 1158 original videos, and 2309 manipulated videos. Each frame is the first in each video.
 This is one random shuffle of data, there are nine other random shuffles which have not been included in this repository due to size constraints.
-All data, including the unshuffled original, are available in Google Cloud storage. 
+All data, including the unshuffled original, are available in Google Cloud storage.
 
 
 Node features include position and facial subgraph
