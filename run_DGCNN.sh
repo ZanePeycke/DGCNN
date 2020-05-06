@@ -10,7 +10,7 @@ gm=DGCNN  # model
 gpu_or_cpu=gpu
 GPU=0  # select the GPU number
 CONV_SIZE="32-32-32-1"
-sortpooling_k=0.6  # If k <= 1, then k is set to an integer so that k% of graphs have nodes less than this integer
+sortpooling_k=.5 # Originally 0.6 If k <= 1, then k is set to an integer so that k% of graphs have nodes less than this integer
 FP_LEN=0  # final dense layer's input dimension, decided by data
 n_hidden=128  # final dense layer's hidden size
 bsize=1  # batch size, set to 50 or 100 to accelerate training
@@ -19,12 +19,16 @@ dropout=True
 # dataset-specific settings
 case ${DATA} in
 DFDC)
-  num_epochs=30
+  num_epochs=100
   learning_rate=0.0001
   ;;
 DFDC_sample)
-  num_epochs=30
+  num_epochs=5
   learning_rate=.0001
+  ;;
+FF)
+  num_epochs=30
+  learning_rate=0.0001 
   ;;
 MUTAG)
   num_epochs=30
