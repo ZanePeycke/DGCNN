@@ -10,7 +10,7 @@ import pdb
 import argparse
 
 cmd_opt = argparse.ArgumentParser(description='Argparser for graph_classification')
-cmd_opt.add_argument('-mode', default='cpu', help='cpu/gpu')
+cmd_opt.add_argument('-mode', default='gpu', help='cpu/gpu')
 cmd_opt.add_argument('-gm', default='DGCNN', help='gnn model to use')
 cmd_opt.add_argument('-data', default=None, help='data folder name')
 cmd_opt.add_argument('-batch_size', type=int, default=50, help='minibatch size')
@@ -21,7 +21,7 @@ cmd_opt.add_argument('-num_class', type=int, default=0, help='#classes')
 cmd_opt.add_argument('-fold', type=int, default=1, help='fold (1..10)')
 cmd_opt.add_argument('-test_number', type=int, default=0, help='if specified, will overwrite -fold and use the last -test_number graphs as testing data')
 cmd_opt.add_argument('-num_epochs', type=int, default=1000, help='number of epochs')
-cmd_opt.add_argument('-latent_dim', type=str, default='64', help='dimension(s) of latent layers')
+cmd_opt.add_argument('-latent_dim', type=str, default='32-32-32-1', help='dimension(s) of latent layers')
 cmd_opt.add_argument('-sortpooling_k', type=float, default=30, help='number of nodes kept after SortPooling')
 cmd_opt.add_argument('-conv1d_activation', type=str, default='ReLU', help='which nn activation layer to use')
 cmd_opt.add_argument('-out_dim', type=int, default=1024, help='graph embedding output size')
@@ -30,9 +30,10 @@ cmd_opt.add_argument('-max_lv', type=int, default=4, help='max rounds of message
 cmd_opt.add_argument('-learning_rate', type=float, default=0.0001, help='init learning_rate')
 cmd_opt.add_argument('-dropout', type=bool, default=False, help='whether add dropout after dense layer')
 cmd_opt.add_argument('-printAUC', type=bool, default=True, help='whether to print AUC (for binary classification only)')
-cmd_opt.add_argument('-extract_features', type=bool, default=False, help='whether to extract final graph features')
-cmd_opt.add_argument('-save_dir', type=str, default='DGCNN/saved', help='directory for saving data')
-
+cmd_opt.add_argument('-extract_features', type=bool, default=True, help='whether to extract final graph features')
+cmd_opt.add_argument('-save_dir', type=str, default='/home/jupyter/saved_models', help='directory for saving data')
+cmd_opt.add_argument("-f", "--fff", help="a dummy argument to fool ipython", default="1")
+cmd_opt.add_argument('-attr_dim', type=int, default=0)
 
 
 cmd_args, _ = cmd_opt.parse_known_args()
@@ -153,5 +154,70 @@ def load_data():
     else:
         return g_list[: n_g - cmd_args.test_number], g_list[n_g - cmd_args.test_number :]
 
+def load_new_data(dataset_name):
+
+    print('loading new data')
+    g_list = []
+    label_dict = {}
+    feat_dict = {}
+
+    with open('data/%s/%s.txt' % (dataset_name, dataset_name), 'r') as f:
+        n_g = int(f.readline().strip())
+        for i in range(n_g):
+            row = f.readline().strip().split()
+            n, l = [int(w) for w in row]
+            if not l in label_dict:
+                mapped = len(label_dict)
+                label_dict[l] = mapped
+            g = nx.Graph()
+            node_tags = []
+            node_features = []
+            n_edges = 0
+            for j in range(n):
+                g.add_node(j)
+                row = f.readline().strip().split()
+                tmp = int(row[1]) + 2
+                if tmp == len(row):
+                    # no node attributes
+                    row = [int(w) for w in row]
+                    attr = None
+                else:
+                    row, attr = [int(w) for w in row[:tmp]], np.array([float(w) for w in row[tmp:]])
+                if not row[0] in feat_dict:
+                    mapped = len(feat_dict)
+                    feat_dict[row[0]] = mapped
+                node_tags.append(feat_dict[row[0]])
+
+                if attr is not None:
+                    node_features.append(attr)
+
+                n_edges += row[1]
+                for k in range(2, len(row)):
+                    g.add_edge(j, row[k])
+
+            if node_features != []:
+                node_features = np.stack(node_features)
+                node_feature_flag = True
+            else:
+                node_features = None
+                node_feature_flag = False
+
+            #assert len(g.edges()) * 2 == n_edges  (some graphs in COLLAB have self-loops, ignored here)
+            assert len(g) == n
+            g_list.append(GNNGraph(g, l, node_tags, node_features))
+    for g in g_list:
+        g.label = label_dict[g.label]
+    cmd_args.num_class = len(label_dict)
+    cmd_args.feat_dim = len(feat_dict) # maximum node label (tag)
+    cmd_args.edge_feat_dim = 0
+    if node_feature_flag == True:
+        cmd_args.attr_dim = node_features.shape[1] # dim of node features (attributes)
+    else:
+        cmd_args.attr_dim = 0
+
+    print('# classes: %d' % cmd_args.num_class)
+    print('# maximum node tag: %d' % cmd_args.feat_dim)
+
+    return g_list[: n_g]
 
 
