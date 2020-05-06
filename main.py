@@ -182,7 +182,7 @@ def loop_dataset(g_list, classifier, sample_idxes, optimizer=None, bsize=cmd_arg
         fpr, tpr, _ = metrics.roc_curve(all_targets, all_scores, pos_label=1)
         auc = metrics.auc(fpr, tpr)
         avg_loss = np.concatenate((avg_loss, [auc]))
-
+#     print(f'The total number of targets {len(all_targets)}')
     return avg_loss
 
 
@@ -208,7 +208,7 @@ if __name__ == '__main__':
     optimizer = optim.Adam(classifier.parameters(), lr=cmd_args.learning_rate)
 
     train_idxes = list(range(len(train_graphs)))
-    best_loss = None
+    best_loss = 99999999999999999
     for epoch in range(cmd_args.num_epochs):
         random.shuffle(train_idxes)
         classifier.train()
@@ -222,13 +222,12 @@ if __name__ == '__main__':
         if not cmd_args.printAUC:
             test_loss[2] = 0.0
         print('\033[93maverage test of epoch %d: loss %.5f acc %.5f auc %.5f\033[0m' % (epoch, test_loss[0], test_loss[1], test_loss[2]))
-        # For now, disregard saving models, we can resume once param selection is done
         # See sheet for param records
-#        if best_loss is None or test_loss[0] < best_loss:
-#            best_loss = test_loss[0]
-#            print('----saving to best model since this is the best valid loss so far.----')
-#            torch.save(classifier.state_dict(), cmd_args.save_dir + '/epoch-best.model')
-#            torch.save(classifier,cmd_args.save_dir + '/epoch-best-entire.model')
+        if test_loss[0] < best_loss:
+            best_loss = test_loss[0]
+            print('----saving to best model since this is the best valid loss so far.----')
+            torch.save(classifier.state_dict(), cmd_args.save_dir + '/epoch-best.model')
+            torch.save(classifier,cmd_args.save_dir + '/epoch-best-entire.model')
 #             save_args(cmd_args.save_dir + '/epoch-best-args.pkl', cmd_args)
 
     with open('acc_results.txt', 'a+') as f:
