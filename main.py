@@ -15,6 +15,8 @@ from DGCNN_embedding import DGCNN
 from mlp_dropout import MLPClassifier, MLPRegression
 from sklearn import metrics
 from util import cmd_args, load_data
+import time
+
 
 class Classifier(nn.Module):
     def __init__(self, regression=False):
@@ -209,6 +211,7 @@ if __name__ == '__main__':
 
     train_idxes = list(range(len(train_graphs)))
     best_loss = 99999999999999999
+    local_time = time.ctime(time.time())
     for epoch in range(cmd_args.num_epochs):
         random.shuffle(train_idxes)
         classifier.train()
@@ -226,8 +229,8 @@ if __name__ == '__main__':
         if test_loss[0] < best_loss:
             best_loss = test_loss[0]
             print('----saving to best model since this is the best valid loss so far.----')
-            torch.save(classifier.state_dict(), cmd_args.save_dir + '/epoch-best.model')
-            torch.save(classifier,cmd_args.save_dir + '/epoch-best-entire.model')
+            torch.save(classifier.state_dict(), cmd_args.save_dir + f'/epoch-best{local_time}.model')
+            torch.save(classifier,cmd_args.save_dir + f'/epoch-best-entire{local_time}.model')
 #             save_args(cmd_args.save_dir + '/epoch-best-args.pkl', cmd_args)
 
     with open('acc_results.txt', 'a+') as f:
