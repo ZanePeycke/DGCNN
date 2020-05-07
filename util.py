@@ -9,6 +9,7 @@ import networkx as nx
 import pdb
 import argparse
 
+
 cmd_opt = argparse.ArgumentParser(description='Argparser for graph_classification')
 cmd_opt.add_argument('-mode', default='gpu', help='cpu/gpu')
 cmd_opt.add_argument('-gm', default='DGCNN', help='gnn model to use')
@@ -31,7 +32,7 @@ cmd_opt.add_argument('-learning_rate', type=float, default=0.0001, help='init le
 cmd_opt.add_argument('-dropout', type=bool, default=False, help='whether add dropout after dense layer')
 cmd_opt.add_argument('-printAUC', type=bool, default=True, help='whether to print AUC (for binary classification only)')
 cmd_opt.add_argument('-extract_features', type=bool, default=True, help='whether to extract final graph features')
-cmd_opt.add_argument('-save_dir', type=str, default='/home/jupyter/saved_models', help='directory for saving data')
+cmd_opt.add_argument('-save_dir', type=str, default=f'/home/jupyter/saved_models', help='directory for saving data')
 cmd_opt.add_argument("-f", "--fff", help="a dummy argument to fool ipython", default="1")
 cmd_opt.add_argument('-attr_dim', type=int, default=0)
 
